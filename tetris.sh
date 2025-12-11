@@ -37,8 +37,8 @@ TOGGLE_HELP=6
 TOGGLE_NEXT=7
 TOGGLE_COLOR=8
 
-DELAY=1          # initial delay between piece movements
-DELAY_FACTOR=0.8 # this value controld delay decrease for each level up
+DELAY=10000       # initial delay between piece movements in factor 10000
+DELAY_FACTOR=8000 # this value controld delay decrease for each level up
 
 # color codes
 RED=1
@@ -365,9 +365,12 @@ ticker() {
     # on SIGUSR2 this process should exit
     trap exit SIGUSR2
     # on SIGUSR1 delay should be decreased, this happens during level ups
-    trap 'DELAY=$(awk "BEGIN {print $DELAY * $DELAY_FACTOR}")' SIGUSR1
+    trap '(( DELAY = (DELAY * DELAY_FACTOR) / 10000 ))' SIGUSR1
 
-    while true ; do echo -n $DOWN; sleep $DELAY; done
+    while true ; do
+        echo -n $DOWN
+        sleep $( printf "%d.%04d\n" $((DELAY/10000)) $((DELAY%10000)) )
+    done
 }
 
 # this function processes keyboard input
